@@ -1,0 +1,32 @@
+---
+- name: Get Cisco Router Configuration
+  hosts: EVE
+  gather_facts: false
+  become: true
+
+  vars:
+    config_dir: "/home/tunglt50/configs"
+  tasks:
+    - name: Show running configuration
+      ios_command:
+        commands:
+          - show running-config
+      register: config_output
+
+    - name: Save configuration to file
+      copy:
+        content: "{{ config_output.stdout[0] }}"
+        dest: "{{ config_dir }}/{{ inventory_hostname }}.txt"
+
+    - name: Read configuration file
+      slurp:
+        src: "/home/tunglt50/configs/{{ inventory_hostname }}.txt"
+      register: config_file
+
+    - name: Remove characters
+      replace:
+        path: "/home/tunglt50/configs/{{ inventory_hostname }}.txt"
+        regexp: '!'
+        replace: ''
+        backup: yes
+      when: config_file['content'] is defined
