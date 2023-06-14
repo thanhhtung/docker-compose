@@ -1,0 +1,59 @@
+---
+- name: Creat backup folder for today
+  hosts: localhost
+  tasks:
+    - name: Get ansible date/time facts
+      setup:
+        filter: "ansible_date_time"
+        gather_subset: "!all"
+
+    - name: Stode DTG as fact
+      set_fact:
+        DTG: "{{ ansible_date_time.date }}"
+
+    - name: Create Directory
+      file:
+        path: /home/tunglt50/BackupConf
+        state: directory
+
+    - name: Create Directory {{hostvars.localhost.DTG}}
+      file:
+        path: /home/tunglt50/BackupConf/{{hostvars.localhost.DTG}}
+        state: directory
+  run_once: true
+
+- name: Show ip int brief
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Ansible net hostname
+      ios_facts:
+        gather_subset: all
+
+    - name: Get current date
+      local_action: command date +%Y-%b-%d
+      register: date
+
+    - name: Get current time
+      local_action: command date +%H:%M
+      register: time
+
+    - name: Backup Running Config
+      ios_command:
+        commands: show ip interface brief
+      register: ip
+
+    - name: Save output to ~/home/tunglt50/BackupConf/{{hostvars.localhost.DTG}}
+      copy:
+        content: "\n{{ansible_net_hostname}} - {{inventory_hostname}} \n{{ip.stdout[0]\n}}"
+        dest: "/home/tunglt50/BackupConf/{{hostvars.localhost.DTG}}/show_IP_{{ansible_net_hostname}}_{{inventory_hostname}}.xls"
+
+    - name: Save all to one file
+      assemble:
+        src: /home/tunglt50/BackupConf/{{hostvars.localhost.DTG}}/
+        dest: /home/tunglt50/BackupConf/{{hostvars.localhost.DTG}}/ALL_show_IP.xls
+      run_once: true
+
+    - name: Tasks done
+      debug:
+        msg: "All tasks has been done on {{date.stdout}} at {{time.stdout}}."

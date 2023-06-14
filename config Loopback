@@ -1,0 +1,21 @@
+---
+- name: Config IP Loopback
+  hosts: 10.1.12.2
+  gather_facts: false
+  tasks:
+    - name: Configuring the interface
+      ios_config:
+        lines:
+        parents:
+          - interface l0
+          - ip address 2.2.2.2 255.255.255.0
+          - no shutdown
+    - name: show ip interface brief
+      ios_command:
+        commands:
+          - show ip interface brief
+      register: output
+
+    - name: Print configuration
+      debug:
+        var: output.stdout_lines

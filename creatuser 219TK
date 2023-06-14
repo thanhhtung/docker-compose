@@ -1,0 +1,43 @@
+- name: Config User & Pwd
+  hosts: 219TK
+  gather_facts: false
+  vars_prompt:
+    - name: user
+      prompt: Nhap user
+      private: no
+
+    - name: pwd
+      prompt: Nhap password
+      private: no
+
+  tasks:
+    - name: Check user list
+      ios_command:
+        commands:
+          - show run | inc {{ user }}
+      register: old
+
+    - name: Configuring new username
+      ios_config:
+        commands:
+          - username {{ user }} privilege 10 password {{ pwd }}
+
+    - name: write config
+      ios_config:
+        commands:
+          - do wr
+
+    - name: show user
+      ios_command:
+        commands:
+          - show run | inc {{ user }}
+      register: new
+
+    - name: Config Success
+      debug:
+        msg: "Config Success"
+      when: old != new
+
+    - name: Print List User
+      debug:
+        var: new.stdout_lines

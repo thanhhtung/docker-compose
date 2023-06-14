@@ -1,0 +1,39 @@
+---
+- name: Config User & Pwd
+  hosts: FW
+  gather_facts: false
+  vars_prompt:
+    - name: user
+      prompt: Nhap user muon tao
+      private: no
+
+  tasks:
+    - name: Add user & pass
+      command:
+        cmd:
+          - add user {{user}} uid 0 homedir "/home/{{user}}"
+
+    - name: Set pwd
+      command:
+        cmd:
+          - set user {{user}} password
+        prompt:
+          - New password:
+          - Verify new password:
+        answer:
+          - '123456aA!@'
+
+    - name: set Role
+      command:
+        cmd:
+          - add rba user {{user}} roles adminRole
+
+    - name: show users
+      command:
+        cmd:
+          - show users
+        register: output
+
+    - name: Printer Users
+      debug:
+        var: output.stdout_lines

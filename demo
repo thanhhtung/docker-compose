@@ -1,0 +1,27 @@
+---
+- name: Demo
+  hosts: all
+  become_user: admin
+
+  tasks:
+    - template:
+        src: ./foo.j2
+        dest: /home/tunglt50/tmp/test.conf
+
+  vars:
+    items_list:
+      - item1
+      - item2
+
+file foo:
+
+{for item in items_list %}
+  {{ item }}
+{%endfor %}
+
+
+{% if items_list[0]  == "item1" %}
+    {{ items_list[0] }}
+{% else %}
+   Khong tim thay item1
+{% endif %}

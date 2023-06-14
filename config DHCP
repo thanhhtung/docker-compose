@@ -1,0 +1,33 @@
+---
+
+    - vars:
+      ios_command:
+        commands:
+          - show run | sec ip dhcp
+      register: Old_dhcp
+
+    - name: Configuration DHCP
+      ios_config:
+        lines:
+          - ip dhcp excluded-address 172.16.1.100 172.16.1.103
+        parents:
+          - ip dhcp pool LAN
+          - network 172.16.1.0 255.255.255.0
+          - dns-server 8.8.8.8 8.8.4.4
+          - default-router 172.16.1.1
+
+    - name: Show config DHCP
+      ios_command:
+        commands:
+          - show run | sec ip dhcp
+      register: New_dhcp
+
+        - name: DHCP configuration output
+      debug:
+        var: New_dhcp.stdout_lines
+
+    - name: Confirm changed
+      debug:
+        msg: " Configuration has been changed "
+
+      when: Old_dhcp != New_dhcp

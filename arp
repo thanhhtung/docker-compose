@@ -1,0 +1,27 @@
+---
+- name: configuration ARP
+  hosts: 219TK
+  tasks:
+    - name: Config ARP
+      ios_config:
+        lines:
+          - arp {{ip}} {{mac}} ARPA
+      register: arp
+
+    - name: Show config ARP
+      ios_command:
+        commands:
+          - show run | inc {{mac}}
+      register: new_arp
+
+    - name: Print ARP
+      debug:
+        var: new_arp.stdout_lines
+
+    - name: Confirm changed
+      when: arp == new_arp
+      debug:
+        msg: " Cau hinh thanh cong "
+
+  vars_files:
+    - ./vars/ip-mac.yaml

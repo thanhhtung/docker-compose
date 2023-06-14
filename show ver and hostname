@@ -1,0 +1,13 @@
+---
+- name: Gather IOS Facts
+  hosts: 10.1.12.1
+  connection: local
+  tasks:
+    - name: Gather IOS Facts
+      ios_facts:
+    - name: What is the IOS OS ver?
+      debug:
+        var: ansible_net_version
+    - name: What is the hostname?
+      debug:
+        var: ansible_net_hostnamemv 

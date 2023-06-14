@@ -1,0 +1,44 @@
+---
+- name: "UPDATE DHCP OPTIONS FOR FNAC-FRANCHISE SWITCHES"
+  hosts: 10.1.12.1
+  gather_facts: false
+  vars:
+    xx: ["ip dhcp pool VOICE_DHCP","ip dhcp pool DATA","ip dhcp pool VIDEO_DHCP ","ip dhcp pool WIFI_USER","ip dhcp pool WIFI_ADM","ip dhcp pool LAN" ]
+
+  tasks:
+    - name: "CHECK"
+      ios_command:
+        commands:
+          - show run | include ip dhcp pool
+      register: output
+
+    - name: DISPLAY THE COMMAND OUTPUT
+      debug:
+        var: output.stdout_lines
+
+    - name: transform output
+      set_fact:
+        pools: "{{ pools | default([]) + [item | regex_replace('ip dhcp pool ', '')] }}"
+      loop: "{{ output.stdout_lines[0]  }}"
+
+    - name: "UPDATE DHCP OPTIONS IN POOL LAN"
+      ios_config:
+        parents:
+          - ip dhcp excluded-address 10.10.10.0 10.10.10.30
+          - ip dhcp pool {{ item }}
+        lines:
+          - dns-server 8.8.8.8 8.8.4.4
+          - network 10.10.10.0 255.255.255.0
+          - default-router 10.10.10.1
+        match: exact
+      loop: "{{ pools }}"
+
+    - name: show configuration
+      ios_command:
+        commands:
+          - show run | sec ip dhcp
+      register: output
+
+    - name: Display DCHP Pool
+      debug:
+        var: output.stdout_lines

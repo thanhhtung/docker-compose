@@ -1,0 +1,8 @@
+---
+- name: print all available facts
+  hosts: all
+  connection: local
+  tasks:
+    - name: print ansible facts
+      ansible.builtin.debug:
+        var: ansible_facts

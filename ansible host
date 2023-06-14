@@ -1,0 +1,9 @@
+[router]
+219TK ansible_host=10.207.112.1 ansible_network_os=ios ansible_connection=network_cli ansible_user=admin ansible_password="Admin@123" ansible_python_interpreter=/usr/bin/python3
+
+[router:vars]
+ansible_network_os=ios
+ansible_connection=network_cli
+ansible_user=admin
+ansible_password=Admin@123
+ansible_python_interpreter=/usr/bin/python3

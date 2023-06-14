@@ -1,0 +1,31 @@
+---
+- name: Config User & Pwd
+  hosts: SWCORE
+  gather_facts: false
+  tasks:
+    - name: Check user list
+      nxos_command:
+        commands:
+          - show run | inc username
+      register: old
+
+    - name: Configuring new username
+      nxos_config:
+        lines:
+          - username tunglt50 password Vcc@0909# role network-admin
+          - copy running-config startup-config
+
+    - name: show user
+      nxos_command:
+        commands:
+          - show run | inc username
+      register: new
+
+    - name: Config Success
+      debug:
+        msg: "Config Success"
+      when: old != new
+
+    - name: Print List User
+      debug:
+        var: new.stdout_lines

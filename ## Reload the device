@@ -1,0 +1,12 @@
+## Reload the device
+---
+- name: Reload the Device
+  hosts: 10.1.12.1
+  tasks:
+    - name: Reload Device
+      ios_command:
+        command: reload
+          answer:
+            - ' y'
+          prompt:
+            - comfirm
